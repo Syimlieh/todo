@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import './style.css'
 import Header from './components/Header'
 import ToDoList from './components/ToDoList'
 
@@ -7,24 +6,46 @@ function App() {
   const [todo, setTodo] = useState([{}]);
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
+  const [editId, setEditId] = useState(null);
 
   function handleSubmit(e) {
     e.preventDefault();
-    const obj = {
-      id: todo[todo.length - 1].id + 1 || 1,
-      title,
-      desc
-    };
-
     if (!title || !desc) {
       alert("Please enter both title and description.")
       return;
     };
-    
-    setTodo([
-      ...todo,
-      obj]
-    )
+
+    if (editId) {
+      setTodo(todo.map(item => 
+        item.id === editId ? { ...item, title, desc } : item
+      ));
+      setEditId(null);
+      setEditId(null);
+    } else {
+      const obj = {
+        id: todo[todo.length - 1].id + 1 || 1,
+        title,
+        desc
+      };
+
+      setTodo([
+        ...todo,
+        obj]
+      )
+    }
+    setTitle('');
+    setDesc('');
+  }
+
+  function handleDelete(id) {
+    setTodo(todo.filter(item => item.id !== id));
+  }
+
+  function handleEdit(id) {
+    const editItem = todo.find(item => item.id === id);
+    setTitle(editItem.title);
+    setDesc(editItem.desc);
+    setEditId(id);
   }
 
   return (
@@ -42,10 +63,10 @@ function App() {
               <label htmlFor="desc" className="text-lg font-medium px-4">Descrition</label>
               <textarea type="text" id="desc" className="p-2.5 rounded-md m-3 border-black border-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-black" placeholder='Enter Todo list desc' value={desc} name={desc} onChange={(e) => setDesc(e.target.value)}  />
             </span>
-            <button className='cursor-pointer text-lg font-semibold px-4 py-3 bg-blue-600 w-full rounded-2xl shadow-lg transition-all duration-300 hover:bg-blue-700 hover:shadow-blue-500/50 hover:scale-105 active:scale-95' onClick={(e) => handleSubmit(e)}>Add a new todo</button>
+            <button className='cursor-pointer text-lg font-semibold px-4 py-3 bg-blue-600 w-full rounded-2xl shadow-lg transition-all duration-300 hover:bg-blue-700 hover:shadow-blue-500/50 hover:scale-105 active:scale-95' onClick={(e) => handleSubmit(e)}>{ editId ? "Edit todo" : "Add a new todo" }</button>
           </form>
         </div>
-        <ToDoList todo={todo} />
+        <ToDoList todo={todo} onDelete={handleDelete} onEdit={handleEdit} />
       </main>
     </>
   )
