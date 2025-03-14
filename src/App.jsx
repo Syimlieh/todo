@@ -3,7 +3,7 @@ import Header from './components/Header'
 import ToDoList from './components/ToDoList'
 
 function App() {
-  const [todo, setTodo] = useState([{}]);
+  const [todo, setTodo] = useState([]);
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [editId, setEditId] = useState(null);
@@ -23,9 +23,10 @@ function App() {
       setEditId(null);
     } else {
       const obj = {
-        id: todo[todo.length - 1].id + 1 || 1,
+        id: todo[todo.length - 1]?.id + 1 || 1,
         title,
-        desc
+        desc,
+        completed: false,
       };
 
       setTodo([
@@ -48,6 +49,12 @@ function App() {
     setEditId(id);
   }
 
+  function handleComplete(id) {
+    setTodo(todo.map(item => 
+      item.id === id ? { ...item, completed: !item.completed } : item
+    ));
+  }
+
   return (
     <>
       <Header />
@@ -66,7 +73,12 @@ function App() {
             <button className='cursor-pointer text-lg font-semibold px-4 py-3 bg-blue-600 w-full rounded-2xl shadow-lg transition-all duration-300 hover:bg-blue-700 hover:shadow-blue-500/50 hover:scale-105 active:scale-95' onClick={(e) => handleSubmit(e)}>{ editId ? "Edit todo" : "Add a new todo" }</button>
           </form>
         </div>
-        <ToDoList todo={todo} onDelete={handleDelete} onEdit={handleEdit} />
+        <ToDoList
+          todo={todo}
+          onDelete={handleDelete}
+          onEdit={handleEdit}
+          onComplete={handleComplete}
+        />
       </main>
     </>
   )
